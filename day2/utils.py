@@ -11,3 +11,7 @@ def read_file_into_list(filename):
   with open(filename, 'r') as f:
     lines = [list(map(int, line.strip().split(' '))) for line in f]
   return lines
+
+def print_array(array):
+  for x in array:
+    print(x)
