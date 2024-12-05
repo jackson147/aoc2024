@@ -1,8 +1,9 @@
 from utils import read_file_into_list
 import re
 
-FILE = './example.txt'
-# FILE = './data.txt'
+# FILE = './example_simple.txt'
+# FILE = './example.txt'
+FILE = './data.txt'
 
 lines = read_file_into_list(FILE)
 
@@ -10,96 +11,26 @@ def print_matrix(matrix):
      for row in matrix:
           print(row)
 
-def char_equal(matrix, x, y, char):
-    return matrix[y][x] == char
+def get_diagonals(grid, bltr = True):
+  dim = len(grid)
+  assert dim == len(grid[0])
+  return_grid = [[] for total in range(2 * len(grid) - 1)]
+  for row in range(len(grid)):
+    for col in range(len(grid[row])):
+      if bltr: return_grid[row + col].append(grid[col][row])
+      else:    return_grid[col - row + (dim - 1)].append(grid[row][col])
+  return return_grid
 
-def get_direction(coordinate, previous_coordinate):
+def count_overlapping(text, substring):
+    count = 0
+    for i in range(len(text) - len(substring) + 1):
+        check_string = text[i:i+len(substring)]
+        if check_string == substring:
+            count += 1
+    return count
 
-    if(previous_coordinate is None):
-        return None
-
-    y,x = coordinate
-    py, px = previous_coordinate
-
-    if(x == px and y != py):
-        if(y > py):
-            return 'POSITIVE_Y'
-        else:
-            return 'NEGATIVE_Y'
-    if(y == py and x != px):
-        if(x > px):
-            return 'POSITIVE_X'
-        else:
-            return 'NEGATIVE_X'
-    
-    if(x != px and y != py):
-        if(y > py and x > px):
-            return 'POSITIVE_BOTH'
-        elif(y > py and x < px):
-            return 'POSITIVE_Y_NEGATIVE_X'
-        elif(y < py and x > px):
-            return 'NEGATIVE_Y_POSITIVE_X'
-        else:
-            return 'NEGATIVE_BOTH'
-    
-    raise Exception("Can't get direction as there has been no movement")
-    
-
-
-def find_around_coordinate(matrix, coordinate, char, previous_coordinate=None):
-    coordinates = []
-    y, x = coordinate
-
-    # Straight lines
-    direction = get_direction(coordinate, previous_coordinate)
-    if(x > 0 and (direction == 'NEGATIVE_X' or direction is None)):
-        if(char_equal(matrix, x - 1, y, char)):
-            coordinates.append((y, x-1, direction))
-    if(y > 0 and (direction == 'NEGATIVE_Y' or direction is None)):
-        if(char_equal(matrix, x, y - 1, char)):
-            coordinates.append((y - 1, x, direction))
-    if(x < len(matrix[0]) - 1 and (direction == 'POSITIVE_X' or direction is None)):
-        if(char_equal(matrix, x + 1, y, char)):
-            coordinates.append((y, x + 1, direction))
-    if(y <  len(matrix) and (direction == 'POSITIVE_Y' or direction is None)):
-        if(char_equal(matrix, x, y + 1, char)):
-            coordinates.append((y + 1, x, direction))
-
-    if(x > 0 and y > 0  and (direction == 'NEGATIVE_BOTH' or direction is None)):
-        if(char_equal(matrix, x - 1, y - 1, char)):
-            coordinates.append((y-1, x-1, direction))
-    if(x < len(matrix[0]) - 1 and y <  len(matrix) - 1  and (direction == 'POSITIVE_BOTH' or direction is None)):
-        if(char_equal(matrix, x + 1, y + 1, char)):
-            coordinates.append((y+1, x+1, direction))
-    if(x > 0 and y <  len(matrix) - 1  and (direction == 'POSITIVE_Y_NEGATIVE_X' or direction is None)):
-        if(char_equal(matrix, x - 1, y + 1, char)):
-            coordinates.append((y+1, x-1, direction))
-    if(x < len(matrix[0]) - 1 and y > 0  and (direction == 'NEGATIVE_Y_POSITIVE_X' or direction is None)):
-        if(char_equal(matrix, x + 1, y - 1, char)):
-            coordinates.append((y-1, x+1, direction))
-
-    return coordinates
-
-def get_xmas_count(matrix, to_check, previous):
-    y, x = to_check
-
-    search_for = None
-
-    # We are looking for an X value in this position
-    if(previous is None):
-        search_for = 'M'
-    else:
-        # Otherwise set the relevant value or error
-        previous_char = matrix[x,y]
-        if(previous_char == 'M'):
-             search_for = 'A'
-        elif(previous_char == 'A'):
-             search_for = 'S'
-        else:
-             search_for = ''
-    
-    # Search for values around the coordinate
-         
+def count_xmas(text):
+   return count_overlapping(text, 'XMAS') + count_overlapping(text, 'SAMX')
 
 matrix = []
 for line in lines:
@@ -108,24 +39,40 @@ for line in lines:
          row.append(char)
     matrix.append(row)
 
-# previous = None
-# for i in range(0,len(matrix)):
-#      for j in range(0, len(row)):
-#           get_xmas_count(matrix, (i, j), previous)
-#           previous = (i, j)
+# print_matrix(matrix)
+# print()
+# for diagonal in get_diagonals(matrix):
+#   print(diagonal)
+# print()
+# for diagonal in get_diagonals(matrix, False):
+#   print(diagonal)
 
-# print(get_direction((0,1), (0,0)))
+total = 0
+# Horizontail
+for row in matrix:
+  joined_row = ''.join(row)
+  count = count_xmas(joined_row)
+  total += count
 
-# print(get_direction((1,1), (0,0)))
+# vertical
+for x in range(len(matrix[0])):
+  joined_col = ''
+  for y in range(len(matrix)):
+    joined_col += matrix[y][x]
+  count = count_xmas(joined_col)
+  total += count
 
-# print(get_direction((1,1), (2,2)))
+for diag in get_diagonals(matrix, True):
+    joined_diag = ''.join(diag)
+    count = count_xmas(joined_diag)
+    total += count
 
-print_matrix(matrix)
+for diag in get_diagonals(matrix, False):
+    joined_diag = ''.join(diag)
+    count = count_xmas(joined_diag)
+    total += count
 
-print(matrix[2][2])
-print(find_around_coordinate(matrix, (2,2), 'M', None))
-founds = find_around_coordinate(matrix, (2,2), 'M', None)
-for found in founds:
-    y, x, direction = found
-    print(matrix[y][x])
+# print(matrix)
+print(total)
 
+    
