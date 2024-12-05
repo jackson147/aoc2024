@@ -1,5 +1,4 @@
 from utils import read_file_into_list
-import re
 
 # FILE = './example_simple.txt'
 # FILE = './example.txt'
