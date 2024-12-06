@@ -19,3 +19,7 @@ def read_file_into_list(filename):
 def print_array(array):
   for x in array:
     print(x)
+    
+def print_matrix(matrix):
+  for row in matrix:
+    print(''.join(row))  

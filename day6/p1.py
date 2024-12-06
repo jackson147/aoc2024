@@ -1,12 +1,7 @@
 import os
 import sys
-from typing import Tuple
+from guard import Guard
 from utils import read_file_into_list
-
-class Guard:
-    def __init__(self, pos, direction):
-        self.pos = pos
-        self.direction = direction
 
 class Day6p1:
   def __init__(self, file):
